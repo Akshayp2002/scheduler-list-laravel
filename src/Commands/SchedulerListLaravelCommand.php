@@ -1,12 +1,12 @@
 <?php
 
-namespace VendorName\Skeleton\Commands;
+namespace Akshay\SchedulerListLaravel\Commands;
 
 use Illuminate\Console\Command;
 
-class SkeletonCommand extends Command
+class SchedulerListLaravelCommand extends Command
 {
-    public $signature = 'skeleton';
+    public $signature = 'scheduler-list-laravel';
 
     public $description = 'My command';
 
