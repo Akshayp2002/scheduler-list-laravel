@@ -19,6 +19,7 @@ class SchedulerListLaravelServiceProvider extends PackageServiceProvider
             ->name('scheduler-list-laravel')
             ->hasConfigFile()
             ->hasViews()
+            ->hasRoutes('web')
             ->hasMigration('create_scheduler_list_laravel_table')
             ->hasCommand(SchedulerListLaravelCommand::class);
     }
