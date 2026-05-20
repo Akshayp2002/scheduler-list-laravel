@@ -1,12 +1,16 @@
 {
     "name": "akshay/scheduler-list-laravel",
-    "description": "To list all nfigured in the app in a nicer manner and able to run it directly",
+    "description": "A beautiful, real-time developer control center to monitor, search, and manually execute scheduled tasks directly from a premium Pulse-like web interface.",
     "keywords": [
-        "akshay",
         "laravel",
-        "scheduler-list-laravel"
+        "scheduler",
+        "cron",
+        "dashboard",
+        "task-manager",
+        "developer-tools",
+        "pulse-style"
     ],
-    "homepage": "https://github.com/akshay/scheduler-list-laravel",
+    "homepage": "https://github.com/Akshayp2002/scheduler-list-laravel",
     "license": "MIT",
     "authors": [
         {

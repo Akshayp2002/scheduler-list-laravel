@@ -850,7 +850,7 @@
                             </div>
                         @endif
 
-                        @if(config('scheduler-list-laravel.manual_execution', true))
+                        @if(config('scheduler-list.manual_execution', true))
                             <button class="btn-run" onclick="runTask({{ $event['id'] }}, '{{ addslashes($event['command']) }}')">
                                 <span class="spinner" id="spinner-{{ $event['id'] }}"></span>
                                 <svg id="play-icon-{{ $event['id'] }}" viewBox="0 0 24 24">

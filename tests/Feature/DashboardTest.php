@@ -3,9 +3,9 @@
 use Illuminate\Console\Scheduling\Schedule;
 
 beforeEach(function () {
-    config(['scheduler-list-laravel.enabled' => true]);
-    config(['scheduler-list-laravel.manual_execution' => true]);
-    config(['scheduler-list-laravel.path' => 'schedulers']);
+    config(['scheduler-list.enabled' => true]);
+    config(['scheduler-list.manual_execution' => true]);
+    config(['scheduler-list.path' => 'schedulers']);
 });
 
 it('can access the scheduler dashboard page', function () {
@@ -53,7 +53,7 @@ it('can manually execute a scheduled artisan command via post', function () {
 });
 
 it('blocks manual execution if configured to be disabled', function () {
-    config(['scheduler-list-laravel.manual_execution' => false]);
+    config(['scheduler-list.manual_execution' => false]);
     
     $schedule = app(Schedule::class);
     $schedule->command('inspire')->hourly();
