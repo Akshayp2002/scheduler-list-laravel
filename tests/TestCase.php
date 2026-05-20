@@ -2,9 +2,9 @@
 
 namespace Akshay\SchedulerListLaravel\Tests;
 
+use Akshay\SchedulerListLaravel\SchedulerListLaravelServiceProvider;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Orchestra\Testbench\TestCase as Orchestra;
-use Akshay\SchedulerListLaravel\SchedulerListLaravelServiceProvider;
 
 class TestCase extends Orchestra
 {

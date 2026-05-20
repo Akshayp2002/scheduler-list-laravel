@@ -2,9 +2,9 @@
 
 namespace Akshay\SchedulerListLaravel;
 
+use Akshay\SchedulerListLaravel\Commands\SchedulerListLaravelCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
-use Akshay\SchedulerListLaravel\Commands\SchedulerListLaravelCommand;
 
 class SchedulerListLaravelServiceProvider extends PackageServiceProvider
 {

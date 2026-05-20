@@ -22,7 +22,7 @@ it('can access the scheduler dashboard page', function () {
 it('can manually execute a scheduled command via post', function () {
     $schedule = app(Schedule::class);
     $schedule->call(function () {
-        echo "Test executed successfully!";
+        echo 'Test executed successfully!';
     })->name('test-closure');
 
     $response = $this->postJson('/schedulers/run', [
@@ -46,14 +46,14 @@ it('can manually execute a scheduled artisan command via post', function () {
 
     $response->assertStatus(200);
     $response->assertJsonPath('success', true);
-    
+
     $output = $response->json('output');
     expect($output)->not->toBeEmpty();
     expect($output)->toContain('Usage');
 });
 
 it('blocks manual execution if configured to be disabled', function () {
-    config(['scheduler-list.manual_execution' => false]);
+    config(['scheduler-list-laravel.manual_execution' => false]);
     
     $schedule = app(Schedule::class);
     $schedule->command('inspire')->hourly();
