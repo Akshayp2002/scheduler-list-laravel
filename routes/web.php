@@ -1,7 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use Akshay\SchedulerListLaravel\Http\Controllers\SchedulerListController;
+use Illuminate\Support\Facades\Route;
 
 if (config('scheduler-list-laravel.enabled', true)) {
     Route::middleware(config('scheduler-list-laravel.middleware', ['web']))
