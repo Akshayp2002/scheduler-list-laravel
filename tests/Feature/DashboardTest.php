@@ -54,7 +54,7 @@ it('can manually execute a scheduled artisan command via post', function () {
 
 it('blocks manual execution if configured to be disabled', function () {
     config(['scheduler-list-laravel.manual_execution' => false]);
-    
+
     $schedule = app(Schedule::class);
     $schedule->command('inspire')->hourly();
 

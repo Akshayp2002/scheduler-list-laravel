@@ -124,7 +124,7 @@ class SchedulerListController extends Controller
 
     public function run(Request $request)
     {
-        if (!config('scheduler-list.manual_execution', true)) {
+        if (! config('scheduler-list.manual_execution', true)) {
             return response()->json([
                 'success' => false,
                 'output' => 'Manual execution is disabled in the configuration.',
