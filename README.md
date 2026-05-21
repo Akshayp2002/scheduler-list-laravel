@@ -21,6 +21,10 @@ A breathtaking, premium, real-time developer dashboard for monitoring, searching
 
 ---
 
+  <img width="1914" height="852" alt="image" src="https://github.com/user-attachments/assets/ec89d1c2-3db4-498e-8450-690665523b14" />
+
+---
+
 ## 🚀 Installation
 
 You can install the package via Composer:
