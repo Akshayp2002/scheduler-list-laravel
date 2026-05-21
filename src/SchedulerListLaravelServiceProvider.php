@@ -2,7 +2,6 @@
 
 namespace Akshay\SchedulerListLaravel;
 
-use Akshay\SchedulerListLaravel\Commands\SchedulerListLaravelCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 
@@ -19,8 +18,6 @@ class SchedulerListLaravelServiceProvider extends PackageServiceProvider
             ->name('scheduler-list-laravel')
             ->hasConfigFile('scheduler-list')
             ->hasViews()
-            ->hasRoutes('web')
-            ->hasMigration('create_scheduler_list_laravel_table')
-            ->hasCommand(SchedulerListLaravelCommand::class);
+            ->hasRoutes('web');
     }
 }

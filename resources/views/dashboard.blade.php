@@ -281,6 +281,50 @@
             box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
         }
 
+        .refresh-btn {
+            background: transparent;
+            border: 1px solid var(--card-border);
+            color: var(--text-muted);
+            padding: 0.5rem 1rem;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            flex-shrink: 0;
+        }
+
+        .refresh-btn:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: var(--text-muted);
+            color: var(--text-main);
+        }
+
+        :root[data-theme="light"] .refresh-btn:hover {
+            background: rgba(15, 23, 42, 0.04);
+        }
+
+        .refresh-btn svg {
+            width: 16px;
+            height: 16px;
+            display: inline-block;
+            transform-origin: center center;
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .refresh-btn:hover svg {
+            transform: rotate(180deg);
+        }
+
+        .refresh-btn:active svg {
+            transform: rotate(360deg) scale(0.9);
+            transition: transform 0.1s ease;
+        }
+
         /* --- Schedulers List --- */
         .schedulers-list {
             display: flex;
@@ -741,13 +785,13 @@
                 <svg class="pulse-logo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
                     <path d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
-                <span class="pulse-title">Laravel <span class="pulse-title-bold">Scheduler</span></span>
+                <span class="pulse-title">Scheduler</span>
             </div>
             
             <div class="pulse-header-actions">
                 <div class="stat-badge">
                     <span class="dot"></span>
-                    <span>System Timezone: <strong>{{ config('app.timezone') }}</strong></span>
+                    <span>System Timezone: <strong>{{ config('app.timezone') }}</strong> <span id="systemTime" data-timezone="{{ config('app.timezone') }}" style="margin-left: 0.25rem; font-weight: 600; opacity: 0.85;"></span></span>
                 </div>
                 <div class="stat-badge">
                     <span>Total Tasks: <strong>{{ $events->count() }}</strong></span>
@@ -775,6 +819,13 @@
             </div>
 
             <div class="filter-group">
+                <button class="refresh-btn" onclick="window.location.reload()" aria-label="Refresh Dashboard" title="Refresh Dashboard">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M23 4v6h-6M1 20v-6h6" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+                    </svg>
+                    <span>Refresh</span>
+                </button>
                 <button class="filter-btn active" data-filter="all">All</button>
                 <button class="filter-btn" data-filter="artisan">Artisan</button>
                 <button class="filter-btn" data-filter="callback">Callbacks</button>
@@ -1051,6 +1102,30 @@
 
         function closeTerminal() {
             document.getElementById('terminalModal').classList.remove('active');
+        }
+
+        // --- Live System Time Clock ---
+        const systemTimeEl = document.getElementById('systemTime');
+        if (systemTimeEl) {
+            const timezone = systemTimeEl.getAttribute('data-timezone');
+            const updateClock = () => {
+                try {
+                    const now = new Date();
+                    const formatter = new Intl.DateTimeFormat('en-US', {
+                        timeZone: timezone,
+                        hour: 'numeric',
+                        minute: '2-digit',
+                        second: '2-digit',
+                        hour12: true
+                    });
+                    systemTimeEl.innerText = `(${formatter.format(now)})`;
+                } catch (e) {
+                    const now = new Date();
+                    systemTimeEl.innerText = `(${now.toLocaleTimeString()})`;
+                }
+            };
+            updateClock();
+            setInterval(updateClock, 1000);
         }
     </script>
 </body>

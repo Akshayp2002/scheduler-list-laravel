@@ -38,8 +38,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Akshay\\SchedulerListLaravel\\": "src/",
-            "Akshay\\SchedulerListLaravel\\Database\\Factories\\": "database/factories/"
+            "Akshay\\SchedulerListLaravel\\": "src/"
         }
     },
     "autoload-dev": {
@@ -67,10 +66,7 @@
         "laravel": {
             "providers": [
                 "Akshay\\SchedulerListLaravel\\SchedulerListLaravelServiceProvider"
-            ],
-            "aliases": {
-                "SchedulerListLaravel": "Akshay\\SchedulerListLaravel\\Facades\\SchedulerListLaravel"
-            }
+            ]
         }
     },
     "minimum-stability": "dev",
