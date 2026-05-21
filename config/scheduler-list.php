@@ -11,7 +11,7 @@ return [
      * The middleware applied to the scheduler dashboard routes.
      * You should restrict this in production (e.g. ['web', 'auth']).
      */
-    'middleware' => ['web'],
+    'middleware' => ['web', 'auth'],
 
     /*
      * Whether the scheduler dashboard is enabled.
