@@ -1,9 +1,9 @@
 # Laravel Scheduler Control Center
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/akshay/scheduler-list-laravel.svg?style=flat-square)](https://packagist.org/packages/akshay/scheduler-list-laravel)
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/devakshay/scheduler-list-laravel.svg?style=flat-square)](https://packagist.org/packages/devakshay/scheduler-list-laravel)
 [![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/Akshayp2002/scheduler-list-laravel/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/Akshayp2002/scheduler-list-laravel/actions)
-[![Total Downloads](https://img.shields.io/packagist/dt/akshay/scheduler-list-laravel.svg?style=flat-square)](https://packagist.org/packages/akshay/scheduler-list-laravel)
-[![License](https://img.shields.io/packagist/l/akshay/scheduler-list-laravel.svg?style=flat-square)](LICENSE.md)
+[![Total Downloads](https://img.shields.io/packagist/dt/devakshay/scheduler-list-laravel.svg?style=flat-square)](https://packagist.org/packages/devakshay/scheduler-list-laravel)
+[![License](https://img.shields.io/packagist/l/devakshay/scheduler-list-laravel.svg?style=flat-square)](LICENSE.md)
 
 A breathtaking, premium, real-time developer dashboard for monitoring, searching, filtering, and manually executing Laravel scheduled tasks in a single click—fully inspired by Laravel Pulse.
 
@@ -26,7 +26,7 @@ A breathtaking, premium, real-time developer dashboard for monitoring, searching
 You can install the package via Composer:
 
 ```bash
-composer require akshay/scheduler-list-laravel
+composer require devakshay/scheduler-list-laravel
 ```
 
 You can publish the configuration file using:

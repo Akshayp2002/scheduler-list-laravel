@@ -1,5 +1,5 @@
 {
-    "name": "akshay/scheduler-list-laravel",
+    "name": "devakshay/scheduler-list-laravel",
     "description": "A beautiful, real-time developer control center to monitor, search, and manually execute scheduled tasks directly from a premium Pulse-like web interface.",
     "keywords": [
         "laravel",
