@@ -27,6 +27,7 @@ class TestCase extends Orchestra
             mkdir($compiledViewsPath, 0777, true);
         }
 
+        config()->set('app.key', 'base64:'.base64_encode(str_repeat('a', 32)));
         config()->set('database.default', 'testing');
         config()->set('view.compiled', $compiledViewsPath);
         config()->set('scheduler-list.enabled', true);
