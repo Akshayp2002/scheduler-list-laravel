@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Illuminate\Console\Scheduling\CallbackEvent;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Contracts\Console\Kernel as ConsoleKernelContract;
+use Illuminate\Contracts\View\Factory as ViewFactory;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Artisan;
@@ -109,7 +110,7 @@ class SchedulerListController extends Controller
             ];
         });
 
-        return view('scheduler-list-laravel::dashboard', compact('events'));
+        return app(ViewFactory::class)->make('scheduler-list-laravel::dashboard', compact('events'));
     }
 
     public function run(Request $request)
