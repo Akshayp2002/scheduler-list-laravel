@@ -9,35 +9,25 @@ use Illuminate\Contracts\Console\Kernel as ConsoleKernelContract;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
-use ReflectionClass;
 
 class SchedulerListController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $this->authorizeAccess($request);
+
         $schedule = app(Schedule::class);
         $kernel = app(ConsoleKernelContract::class);
 
         // 1. Force loading schedules from the Console Kernel.
-        if (method_exists($kernel, 'resolveConsoleSchedule')) {
-            $kernel->resolveConsoleSchedule();
-        } elseif (method_exists($kernel, 'schedule')) {
-            try {
-                $reflection = new ReflectionClass($kernel);
-                $method = $reflection->getMethod('schedule');
-                $method->setAccessible(true);
-                $method->invoke($kernel, $schedule);
-            } catch (\Throwable $e) {
-                // Fail-safe
-            }
-        }
+        $kernel->resolveConsoleSchedule();
 
         // 2. Load console routes/console.php if it exists in the host application
         if (file_exists(base_path('routes/console.php'))) {
             try {
-                (static function () use ($schedule) {
-                    $app = app();
+                (static function () {
                     include_once base_path('routes/console.php');
                 })();
             } catch (\Throwable $e) {
@@ -48,7 +38,7 @@ class SchedulerListController extends Controller
         // 3. Process each event
         $events = collect($schedule->events())->map(function ($event, $index) {
             $command = $event->command ?? '';
-            $summary = method_exists($event, 'getSummaryForDisplay') ? $event->getSummaryForDisplay() : '';
+            $summary = $event->getSummaryForDisplay();
 
             // Clean up path and binary prefixes for aesthetic display
             $cleanCommand = $command;
@@ -88,16 +78,16 @@ class SchedulerListController extends Controller
 
             // Parse constraints
             $constraints = [];
-            if (isset($event->withoutOverlapping) && $event->withoutOverlapping) {
+            if ($event->withoutOverlapping) {
                 $constraints[] = 'Without Overlapping';
             }
-            if (isset($event->onOneServer) && $event->onOneServer) {
+            if ($event->onOneServer) {
                 $constraints[] = 'On One Server';
             }
-            if (isset($event->evenInMaintenanceMode) && $event->evenInMaintenanceMode) {
+            if ($event->evenInMaintenanceMode) {
                 $constraints[] = 'In Maintenance';
             }
-            if (isset($event->runInBackground) && $event->runInBackground) {
+            if ($event->runInBackground) {
                 $constraints[] = 'Background';
             }
             if (! empty($event->environments)) {
@@ -110,7 +100,7 @@ class SchedulerListController extends Controller
                 'command' => $cleanCommand,
                 'summary' => $summary ?: $cleanCommand,
                 'expression' => $event->expression,
-                'timezone' => $event->timezone ?? config('app.timezone'),
+                'timezone' => $event->timezone ?: config('app.timezone'),
                 'next_run' => $nextRun,
                 'next_run_diff' => $nextRunDiff,
                 'description' => $event->description ?: 'No description provided.',
@@ -124,34 +114,29 @@ class SchedulerListController extends Controller
 
     public function run(Request $request)
     {
-        if (! config('scheduler-list.manual_execution', true)) {
+        $this->authorizeAccess($request);
+
+        if (! config('scheduler-list.manual_execution', false)) {
             return response()->json([
                 'success' => false,
                 'output' => 'Manual execution is disabled in the configuration.',
             ], 403);
         }
 
-        $id = $request->input('id');
+        $validated = $request->validate([
+            'id' => ['required', 'integer', 'min:0'],
+        ]);
+
+        $id = (int) $validated['id'];
         $schedule = app(Schedule::class);
         $kernel = app(ConsoleKernelContract::class);
 
         // Load all schedules
-        if (method_exists($kernel, 'resolveConsoleSchedule')) {
-            $kernel->resolveConsoleSchedule();
-        } elseif (method_exists($kernel, 'schedule')) {
-            try {
-                $reflection = new ReflectionClass($kernel);
-                $method = $reflection->getMethod('schedule');
-                $method->setAccessible(true);
-                $method->invoke($kernel, $schedule);
-            } catch (\Throwable $e) {
-            }
-        }
+        $kernel->resolveConsoleSchedule();
 
         if (file_exists(base_path('routes/console.php'))) {
             try {
-                (static function () use ($schedule) {
-                    $app = app();
+                (static function () {
                     include_once base_path('routes/console.php');
                 })();
             } catch (\Throwable $e) {
@@ -225,6 +210,18 @@ class SchedulerListController extends Controller
                 $output = 'Task executed successfully (no output returned).';
             }
 
+            $outputLimit = (int) config('scheduler-list.output_limit', 12000);
+            if ($outputLimit > 0 && strlen($output) > $outputLimit) {
+                $output = substr($output, 0, $outputLimit)."\n\n[Output truncated]";
+            }
+
+            Log::info('Manual schedule run completed.', [
+                'event_id' => $id,
+                'event_type' => $event instanceof CallbackEvent ? 'Callback' : (isset($event->command) && str_contains($event->command, 'artisan') ? 'Artisan' : 'Shell'),
+                'user_id' => $request->user()?->getAuthIdentifier(),
+                'ip' => $request->ip(),
+            ]);
+
             return response()->json([
                 'success' => true,
                 'output' => trim($output),
@@ -235,12 +232,32 @@ class SchedulerListController extends Controller
             }
             Log::error('Manual schedule run failed: '.$e->getMessage(), [
                 'exception' => $e,
+                'event_id' => $id,
+                'user_id' => $request->user()?->getAuthIdentifier(),
+                'ip' => $request->ip(),
             ]);
 
             return response()->json([
                 'success' => false,
-                'output' => 'Execution failed: '.$e->getMessage(),
+                'output' => 'Execution failed. Check the Laravel logs for details.',
             ], 500);
         }
+    }
+
+    private function authorizeAccess(Request $request): void
+    {
+        $callback = config('scheduler-list.authorize');
+
+        if ($callback !== null) {
+            abort_unless(is_callable($callback), 403);
+            abort_unless((bool) app()->call($callback, ['request' => $request]), 403);
+
+            return;
+        }
+
+        $ability = config('scheduler-list.ability', 'viewSchedulerList');
+
+        abort_unless(is_string($ability) && $ability !== '', 403);
+        abort_unless(Gate::allows($ability), 403);
     }
 }

@@ -3,8 +3,8 @@
 use Akshay\SchedulerListLaravel\Http\Controllers\SchedulerListController;
 use Illuminate\Support\Facades\Route;
 
-if (config('scheduler-list.enabled', true)) {
-    Route::middleware(config('scheduler-list.middleware', ['web']))
+if (config('scheduler-list.enabled', false)) {
+    Route::middleware(config('scheduler-list.middleware', ['web', 'auth']))
         ->prefix(config('scheduler-list.path', 'schedulers'))
         ->group(function () {
             Route::get('/', [SchedulerListController::class, 'index'])->name('scheduler-list.index');

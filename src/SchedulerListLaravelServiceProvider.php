@@ -2,6 +2,8 @@
 
 namespace Akshay\SchedulerListLaravel;
 
+use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Support\Facades\Gate;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 
@@ -19,5 +21,16 @@ class SchedulerListLaravelServiceProvider extends PackageServiceProvider
             ->hasConfigFile('scheduler-list')
             ->hasViews()
             ->hasRoutes('web');
+    }
+
+    public function packageBooted(): void
+    {
+        $ability = config('scheduler-list.ability', 'viewSchedulerList');
+
+        if (! is_string($ability) || $ability === '' || Gate::has($ability)) {
+            return;
+        }
+
+        Gate::define($ability, fn (?Authenticatable $user = null): bool => app()->environment('local'));
     }
 }

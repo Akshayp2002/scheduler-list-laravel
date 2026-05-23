@@ -6,6 +6,8 @@ beforeEach(function () {
     config(['scheduler-list.enabled' => true]);
     config(['scheduler-list.manual_execution' => true]);
     config(['scheduler-list.path' => 'schedulers']);
+    config(['scheduler-list.middleware' => ['web']]);
+    config(['scheduler-list.authorize' => fn () => true]);
 });
 
 it('can access the scheduler dashboard page', function () {
@@ -67,4 +69,31 @@ it('blocks manual execution if configured to be disabled', function () {
         'success' => false,
         'output' => 'Manual execution is disabled in the configuration.',
     ]);
+});
+
+it('validates manual execution task id', function () {
+    $response = $this->postJson('/schedulers/run', [
+        'id' => 'not-a-task',
+    ]);
+
+    $response->assertStatus(422);
+    $response->assertJsonValidationErrors('id');
+});
+
+it('does not expose exception details when manual execution fails', function () {
+    $schedule = app(Schedule::class);
+    $schedule->call(function () {
+        throw new RuntimeException('secret internal failure detail');
+    })->name('failing-closure');
+
+    $response = $this->postJson('/schedulers/run', [
+        'id' => 0,
+    ]);
+
+    $response->assertStatus(500);
+    $response->assertJson([
+        'success' => false,
+        'output' => 'Execution failed. Check the Laravel logs for details.',
+    ]);
+    $response->assertDontSee('secret internal failure detail');
 });

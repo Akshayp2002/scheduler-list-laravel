@@ -13,7 +13,7 @@ A breathtaking, premium, real-time developer dashboard for monitoring, searching
 
 - **💫 Pulse-Style Dashboard**: A premium user interface featuring fluid modern glassmorphism panels, harmonious tailored HSL color schemes, and subtle interactive micro-animations.
 - **🌗 Steady Toggle Theme Switcher**: Full Dark and Light theme adaptability with local storage persistence and transition controls.
-- **⚡ In-Process Manual Triggering**: Trigger Artisan commands, Closure callbacks, and shell jobs directly from the UI with zero queue delays.
+- **⚡ Controlled Manual Triggering**: Optionally trigger Artisan commands, Closure callbacks, and shell jobs directly from the UI when explicitly enabled.
 - **📟 Beautiful Built-in Console**: Executes and streams terminal logs in real-time within an interactive overlay (custom-designed in Xcode-dark and DevTools-light styles).
 - **🔍 Real-Time Fuzzy Search & Filtering**: Instantly search by command name, expression, or description. Filter tasks by type (Artisan, Callbacks, Shell) with active badge indicators.
 - **🏷️ Smart Meta Indicators**: Real-time next run schedules (Carbon countdowns), timezone details, total task count, and task constraints (e.g. *Without Overlapping*, *On One Server*, *In Maintenance*).
@@ -52,25 +52,70 @@ return [
     /*
      * The path/URL where the scheduler dashboard will be accessible.
      */
-    'path' => 'schedulers',
+    'path' => env('SCHEDULER_LIST_PATH', 'schedulers'),
 
     /*
      * The middleware applied to the scheduler dashboard routes.
-     * You should restrict this in production (e.g. ['web', 'auth']).
+     * Keep auth enabled in production and add any tenant/admin/IP middleware your app needs.
      */
-    'middleware' => ['web'],
+    'middleware' => ['web', 'auth'],
+
+    /*
+     * Optional Gate ability used by the package. The default Gate only grants access
+     * in local environments; production apps should define this ability explicitly.
+     */
+    'ability' => env('SCHEDULER_LIST_ABILITY', 'viewSchedulerList'),
+
+    /*
+     * Optional authorization callback. Return true to allow access.
+     */
+    'authorize' => null,
 
     /*
      * Whether the scheduler dashboard is enabled.
      */
-    'enabled' => true,
+    'enabled' => env('SCHEDULER_LIST_ENABLED', false),
 
     /*
      * Allow developers to run scheduled tasks manually from the dashboard.
      */
-    'manual_execution' => true,
+    'manual_execution' => env('SCHEDULER_LIST_MANUAL_EXECUTION', false),
+
+    /*
+     * Maximum number of output characters returned to the browser after a manual run.
+     */
+    'output_limit' => 12000,
 ];
 ```
+
+---
+
+## 🔐 Production Security
+
+The dashboard is disabled by default. To use it in production, enable it deliberately and restrict it to trusted operators:
+
+```env
+SCHEDULER_LIST_ENABLED=true
+SCHEDULER_LIST_MANUAL_EXECUTION=false
+```
+
+Manual execution should stay disabled unless your team explicitly needs it. If you enable it, define a Gate in your application:
+
+```php
+use Illuminate\Support\Facades\Gate;
+
+Gate::define('viewSchedulerList', function ($user) {
+    return $user->is_admin;
+});
+```
+
+Alternatively, publish the config and provide an `authorize` callback:
+
+```php
+'authorize' => fn (\Illuminate\Http\Request $request) => $request->user()?->is_admin === true,
+```
+
+Never expose the dashboard with only `['web']` middleware on a public application.
 
 ---
 
@@ -96,10 +141,20 @@ Schedule::call(function () {
 php artisan serve
 ```
 
-3. Visit the dashboard directly in your browser:
+3. Enable the dashboard in your environment:
+
+```env
+SCHEDULER_LIST_ENABLED=true
+```
+
+4. Visit the dashboard directly in your browser:
 👉 **[http://localhost:8000/schedulers](http://localhost:8000/schedulers)** (or your custom `path` configuration).
 
-4. Click **Run** on any task to instantly view logs stream inside the dark/light adaptive overlay console window!
+5. To allow the **Run** button, explicitly enable manual execution:
+
+```env
+SCHEDULER_LIST_MANUAL_EXECUTION=true
+```
 
 ---
 

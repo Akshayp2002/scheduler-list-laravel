@@ -901,8 +901,8 @@
                             </div>
                         @endif
 
-                        @if(config('scheduler-list.manual_execution', true))
-                            <button class="btn-run" onclick="runTask({{ $event['id'] }}, '{{ addslashes($event['command']) }}')">
+                        @if(config('scheduler-list.manual_execution', false))
+                            <button class="btn-run" data-task-id="{{ $event['id'] }}" data-command="{{ $event['command'] }}">
                                 <span class="spinner" id="spinner-{{ $event['id'] }}"></span>
                                 <svg id="play-icon-{{ $event['id'] }}" viewBox="0 0 24 24">
                                     <path d="M8 5v14l11-7z"/>
@@ -1019,8 +1019,14 @@
         }
 
         // --- Manual Route Triggering ---
+        document.querySelectorAll('.btn-run').forEach(button => {
+            button.addEventListener('click', () => {
+                runTask(Number(button.dataset.taskId), button.dataset.command || '');
+            });
+        });
+
         function runTask(taskId, commandName) {
-            const btn = document.querySelector(`.scheduler-card [onclick*="runTask(${taskId}"]`);
+            const btn = document.querySelector(`.btn-run[data-task-id="${taskId}"]`);
             const spinner = document.getElementById(`spinner-${taskId}`);
             const playIcon = document.getElementById(`play-icon-${taskId}`);
             const btnText = document.getElementById(`btn-text-${taskId}`);
